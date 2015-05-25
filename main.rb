@@ -6,28 +6,28 @@ class Card
   def initialize(suite, value)
     @suite = suite
     @value = value
-    @output = {}
+    @output = []
   end
 
   def draw
-    @output = {1 => '', 2 => '', 3 => '', 4 => '', 5 => '', 6 => ''}
+    @output = []
     color = ['Heart', 'Diamond'].include?(@suite) ? 'red' : 'white'
-    @output[1] = " -----------   ".send(color)
+    @output.push " -----------   ".send(color)
     tmp = "/  #{@suite}"
     (9 - @suite.size).times do  
       tmp = tmp + ' '
     end
     tmp = tmp + "\\  "
-    @output[2] = tmp.send(color)
-    @output[3] = "|           |  ".send(color)
-    @output[4] = "|           |  ".send(color)
+    @output.push tmp.send(color)
+    @output.push "|           |  ".send(color)
+    @output.push "|           |  ".send(color)
     tmp = "\\        #{@value}"
     (3 - @value.size).times do 
       tmp = tmp + ' '
     end
     tmp = tmp + '/  '
-    @output[5] = tmp.send(color)
-    @output[6] = " -----------   ".send(color)
+    @output.push tmp.send(color)
+    @output.push " -----------   ".send(color)
     nil
   end
 
@@ -82,9 +82,9 @@ class Solitaire
   def initialize(name)
     @name = name
     @deck = Deck.new
-    @display = Display.new
+    @display = Display
     @deck.shuffle
-    @cols = {1 => {}, 2 => {}, 3 => {}, 4 => {}, 5 => {}, 6 => {}, 7 => {}}
+    @cols = {1 => [], 2 => [], 3 => [], 4 => [], 5 => [], 6 => [], 7 => []}
     @top = {'Spade' => {}, 'Heart' => {}, 'Diamond' => {}, 'Club' => {}}
   end
 
@@ -93,24 +93,62 @@ class Solitaire
   end
 
   def play
-    tmps = {1 => '', 2 => '', 3 => '', 4 => '', 5 => '', 6 => ''}
-    4.times do 
-      a = @deck.draw
-      a.draw
-      tmps.update(a.output){|k, v1, v2| v1 + v2}
+    deal()
+  end
+
+  def deal
+    cur = 1
+    i = 1
+    28.times do 
+      tmp_card = @deck.draw
+      tmp_card.draw
+      @cols[cur] << tmp_card
+      cur += 1
+      if cur > 7
+        if i == 6
+          cur = 7
+        else
+          cur = 7 - i
+        end
+        puts cur
+        i += 1
+      end
+    end
+    @display.show(@cols)
+   end
+end
+
+class Display
+
+  def self.show(columns)
+    tmps = {1 => '', 2 => '', 3 => '', 4 => '', 5 => '', 6 => '', 7 => '', 8 => '', 9 => '', 10 => '', 11 => '', 12 => ''}
+    columns.each do |a|
+      tmp_cards = a.last
+      if true
+        tmp_col = tmp_cards.last.output
+        tmps.each do |k, v|
+          if k < tmp_cards.size 
+            tmps[k] = tmps[k] + ' ***********   '
+            next
+          end 
+          z = tmp_col.shift
+          if z
+            tmps[k] = tmps[k] + z
+          else
+            tmps[k] = tmps[k] + '               '
+          end
+        end
+      end
     end
 
     tmps.each_value do |value|
       puts value
     end
+
+    binding.pry
     nil
-  end
-end
 
-class Display
 
-  def show
-    
   end
 end
 
@@ -131,7 +169,7 @@ class Menu
     tmp = gets.chomp
     if tmp.eql?('1')
       game = Solitaire.new('James')
-      game.play()
+      game.deal() 
     else
       puts "nothing"
     end
