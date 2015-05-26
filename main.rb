@@ -45,7 +45,6 @@ class Card
 end
 
 class Deck
-
   def initialize
     @cards = []
     ['Spade', 'Heart', 'Diamond', 'Club'].each do |suite|
@@ -75,7 +74,6 @@ class Deck
   def shuffle
     @cards.shuffle!
   end
-
 end
 
 class Solitaire
